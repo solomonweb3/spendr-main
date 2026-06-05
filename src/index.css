@@ -1,0 +1,150 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=DM+Sans:wght@300;400;500&family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 98%;
+    --foreground: 230 15% 10%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 230 15% 10%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 230 15% 10%;
+
+    --primary: 200 80% 45%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 230 12% 92%;
+    --secondary-foreground: 230 15% 20%;
+
+    --muted: 230 10% 94%;
+    --muted-foreground: 230 10% 40%;
+
+    --accent: 230 12% 92%;
+    --accent-foreground: 230 15% 10%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 230 12% 88%;
+    --input: 230 12% 88%;
+    --ring: 200 80% 45%;
+
+    --radius: 0.75rem;
+
+    --glass-bg: 0 0% 100% / 0.7;
+    --glass-border: 230 12% 80% / 0.3;
+    --glass-shadow: 0 8px 32px 0 hsla(230, 15%, 10%, 0.08);
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 230 15% 20%;
+    --sidebar-primary: 230 15% 10%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 230 12% 92%;
+    --sidebar-accent-foreground: 230 15% 20%;
+    --sidebar-border: 230 12% 88%;
+    --sidebar-ring: 200 80% 45%;
+  }
+
+  .dark {
+    --background: 0 0% 0%;
+    --foreground: 0 0% 96%;
+
+    --card: 230 15% 12%;
+    --card-foreground: 0 0% 96%;
+
+    --popover: 230 15% 12%;
+    --popover-foreground: 0 0% 96%;
+
+    --primary: 200 80% 70%;
+    --primary-foreground: 230 15% 8%;
+
+    --secondary: 230 12% 18%;
+    --secondary-foreground: 0 0% 90%;
+
+    --muted: 230 10% 16%;
+    --muted-foreground: 230 10% 55%;
+
+    --accent: 0 0% 85%;
+    --accent-foreground: 230 15% 8%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 96%;
+
+    --border: 230 12% 20%;
+    --input: 230 12% 20%;
+    --ring: 200 80% 70%;
+
+    --radius: 0.75rem;
+
+    --glass-bg: 230 15% 12% / 0.6;
+    --glass-border: 0 0% 100% / 0.08;
+    --glass-shadow: 0 8px 32px 0 hsla(0, 0%, 0%, 0.37);
+
+    --sidebar-background: 230 15% 10%;
+    --sidebar-foreground: 0 0% 90%;
+    --sidebar-primary: 0 0% 100%;
+    --sidebar-primary-foreground: 230 15% 8%;
+    --sidebar-accent: 230 12% 18%;
+    --sidebar-accent-foreground: 0 0% 90%;
+    --sidebar-border: 230 12% 20%;
+    --sidebar-ring: 0 0% 100%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-body antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display;
+  }
+}
+
+@layer components {
+  .glass-card {
+    background: hsla(var(--glass-bg));
+    border: 1px solid hsla(var(--glass-border));
+    box-shadow: var(--glass-shadow);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+
+  .glow-primary {
+    box-shadow: 0 0 20px hsla(var(--primary) / 0.3), 0 0 60px hsla(var(--primary) / 0.1);
+  }
+
+  .text-gradient {
+    @apply text-foreground;
+  }
+}
+
+@keyframes scroll-locations {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(-50%);
+  }
+}
+
+.animate-scroll-locations {
+  animation: scroll-locations 30s linear infinite;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
