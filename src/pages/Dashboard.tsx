@@ -1,145 +1,170 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Heart, Star, Car, Home, Plane, User, LogOut, Sun, Moon, MapPin, ChevronDown } from "lucide-react";
+import { LogOut, User, Sun, Moon, Star, Heart, Search } from "lucide-react";
 import { useTheme } from "next-themes";
-import { Button } from "@/components/ui/button";
-import ListingCard from "@/components/ListingCard";
-import HorizontalScrollRow from "@/components/HorizontalScrollRow";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useAuth } from "@/hooks/useAuth";
-import spendrLogo from "@/assets/spendr-logo.png";
+import Logo from "@/components/Logo";
 import { useListings } from "@/hooks/useListings";
-import newportDripLogo from "@/assets/newport-drip-logo.png";
-import { listings as mockListings } from "@/data/listings";
+import { motion, AnimatePresence } from "framer-motion";
 
-const categories = [
-  { icon: Home, label: "Stays" },
-  { icon: Car, label: "Services" },
-  { icon: Plane, label: "Travel" },
+const CATEGORIES = [
+  { label: "Stays",            type: "Stay"       },
+  { label: "Private Aviation", type: "PrivateJet"  },
+  { label: "Exotic Cars",      type: "Rental"      },
+  { label: "Experiences",      type: "Experience"  },
 ];
 
+const CITIES = ["All", "Miami, FL", "Los Angeles, CA", "New York, NY", "Las Vegas, NV"];
+const CRYPTOS = ["All", "BTC", "ETH", "SOL", "USDC", "USDT"];
 
-const Dashboard = () => {
-  const [activeCategory, setActiveCategory] = useState("Stays");
+// ─── Card ─────────────────────────────────────────────────────────────────────
+function ListingCard({ listing, isFav, onFav }: { listing: any; isFav: boolean; onFav: (id: number) => void }) {
+  const navigate = useNavigate();
+  return (
+    <div className="group flex flex-col" onClick={() => navigate(`/listing/${listing.id}`)} style={{ cursor: "none" }}>
+      {/* Image */}
+      <div className="relative overflow-hidden rounded-xl mb-4 bg-muted" style={{ aspectRatio: "4/3" }}>
+        <img
+          src={listing.image}
+          alt={listing.name}
+          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+          loading="lazy"
+        />
+        {listing.tag && (
+          <span className="absolute top-3 left-3 bg-background text-foreground text-[11px] font-semibold px-2.5 py-1 rounded-full tracking-wide shadow-sm">
+            {listing.tag}
+          </span>
+        )}
+        <button
+          onClick={(e) => { e.stopPropagation(); onFav(listing.id); }}
+          className="absolute top-3 right-3 p-2 rounded-full bg-background/80 backdrop-blur-sm hover:bg-background transition-colors shadow-sm"
+          style={{ cursor: "none" }}
+        >
+          <Heart size={14} className={isFav ? "fill-red-500 text-red-500" : "text-muted-foreground"} />
+        </button>
+      </div>
+
+      {/* Info */}
+      <div className="flex flex-col gap-1 px-0.5">
+        <div className="flex items-start justify-between gap-2">
+          <h3 className="font-semibold text-foreground text-[15px] leading-snug truncate">{listing.name}</h3>
+          <div className="flex items-center gap-0.5 flex-shrink-0 mt-0.5">
+            <Star size={12} className="fill-foreground text-foreground" />
+            <span className="text-[13px] font-medium text-foreground">{listing.rating}</span>
+          </div>
+        </div>
+        <p className="text-muted-foreground text-[13px] truncate">{listing.location}</p>
+        <p className="text-foreground text-[13px] font-medium mt-0.5">
+          {listing.price} <span className="text-muted-foreground font-normal">· {listing.reviews} reviews</span>
+        </p>
+        <div className="flex flex-wrap gap-1 mt-1.5">
+          {(listing.accepted_crypto || []).slice(0, 3).map((c: string) => (
+            <span key={c} className="text-[10px] font-medium bg-secondary text-secondary-foreground px-2 py-0.5 rounded-full">{c}</span>
+          ))}
+          {(listing.accepted_crypto || []).length > 3 && (
+            <span className="text-[10px] font-medium bg-secondary text-secondary-foreground px-2 py-0.5 rounded-full">
+              +{listing.accepted_crypto.length - 3}
+            </span>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Dashboard ────────────────────────────────────────────────────────────────
+export default function Dashboard() {
+  const [activeType, setActiveType] = useState("Stay");
+  const [activeCity, setActiveCity] = useState("All");
+  const [activeCrypto, setActiveCrypto] = useState("All");
+  const [search, setSearch] = useState("");
   const [favorites, setFavorites] = useState<number[]>([]);
-  const [selectedCity, setSelectedCity] = useState<string | null>("Los Angeles");
-  const [selectedCrypto, setSelectedCrypto] = useState<string>("all");
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
-  const { data: dbListings } = useListings();
+  const { data: listings, isLoading } = useListings();
   const { theme, setTheme } = useTheme();
 
-  // Merge DB listings with mock listings, DB takes priority for Travel
-  const allListings = [
-    ...(dbListings || []).map((l) => ({
-      id: l.id + 10000, // offset to avoid ID collision with mock
-      name: l.name,
-      location: l.location,
-      price: l.price,
-      rating: Number(l.rating),
-      reviews: l.reviews,
-      image: l.image,
-      tag: l.tag || undefined,
-      description: l.description || "",
-      type: l.type,
-      acceptedCrypto: l.accepted_crypto || [],
-      images: [l.image],
-      details: [],
-    })),
-    ...mockListings,
-  ];
+  const toggleFav = (id: number) =>
+    setFavorites((p) => p.includes(id) ? p.filter((f) => f !== id) : [...p, id]);
 
-  const handleSignOut = async () => {
-    await signOut();
-    navigate("/");
-  };
-
-  const toggleFavorite = (id: number) => {
-    setFavorites((prev) =>
-      prev.includes(id) ? prev.filter((f) => f !== id) : [...prev, id]
-    );
-  };
+  const filtered = (listings || []).filter((l) => {
+    if (l.type !== activeType) return false;
+    if (activeCity !== "All" && !l.location.includes(activeCity.split(",")[0])) return false;
+    if (activeCrypto !== "All" && !(l.accepted_crypto || []).includes(activeCrypto)) return false;
+    if (search && !l.name.toLowerCase().includes(search.toLowerCase())) return false;
+    return true;
+  });
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur-xl">
-        <div className="flex items-center justify-between h-[100px] md:h-[110px] px-10 md:px-14 lg:px-20 xl:px-24">
-          {/* Left: Logo */}
-          <div className="flex items-center min-w-[160px]">
-            <img src={spendrLogo} alt="Spendr" className="h-8 md:h-9 dark:invert-0 invert" />
-          </div>
+    <div className="min-h-screen bg-background" style={{ fontFamily: "'Space Grotesk', 'Inter', sans-serif" }}>
 
-          {/* Center: Category Tabs */}
-          <nav className="absolute left-1/2 -translate-x-1/2 flex items-center gap-2 md:gap-6 h-full">
-            {categories.map((cat) => {
-              const Icon = cat.icon;
-              const isActive = activeCategory === cat.label;
+      {/* ── Header ── */}
+      <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-xl border-b border-border">
+        <div className="flex items-center justify-between h-[72px] px-6 md:px-10 lg:px-16">
+          <Logo size={20} onClick={() => navigate("/")} />
+
+          <nav className="hidden md:flex items-center h-full">
+            {CATEGORIES.map((cat) => {
+              const isActive = activeType === cat.type;
               return (
                 <button
-                  key={cat.label}
-                  onClick={() => setActiveCategory(cat.label)}
-                  className={`relative flex flex-col items-center justify-center gap-1 px-4 md:px-5 h-full transition-colors ${
-                    isActive
-                      ? "text-foreground"
-                      : "text-muted-foreground hover:text-foreground/80"
-                  }`}
+                  key={cat.type}
+                  onClick={() => { setActiveType(cat.type); setActiveCity("All"); }}
+                  className={`relative flex items-center justify-center px-5 h-full text-[13px] font-medium transition-colors ${isActive ? "text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                  style={{ cursor: "none" }}
                 >
-                  <Icon size={24} strokeWidth={isActive ? 2 : 1.5} />
-                  <span className="text-[11px] md:text-xs font-medium whitespace-nowrap">{cat.label}</span>
+                  {cat.label}
                   {isActive && (
-                    <span className="absolute bottom-0 left-2 right-2 h-[2px] bg-foreground rounded-full" />
+                    <motion.div
+                      layoutId="tab-line"
+                      className="absolute bottom-0 left-3 right-3 h-[2px] bg-foreground rounded-full"
+                    />
                   )}
                 </button>
               );
             })}
           </nav>
 
-          {/* Right: Actions */}
-          <div className="flex items-center gap-3 min-w-[160px] justify-end">
-            <Button
-              variant="ghost"
-              className="hidden md:flex text-sm font-medium text-foreground hover:bg-secondary rounded-full px-5 py-2"
+          <div className="flex items-center gap-3">
+            <button
+              className="hidden md:flex items-center gap-2 border border-border rounded-full px-4 py-2 text-[13px] font-medium text-foreground hover:shadow-md transition-all"
+              style={{ cursor: "none" }}
             >
-              List Your Business
-            </Button>
+              List a Business
+            </button>
             <Popover>
               <PopoverTrigger asChild>
-                <button className="h-9 w-9 rounded-full border border-border bg-background flex items-center justify-center hover:shadow-md transition-all">
-                  <User size={16} className="text-muted-foreground" />
+                <button className="w-9 h-9 rounded-full border border-border flex items-center justify-center hover:shadow-md transition-all" style={{ cursor: "none" }}>
+                  <User size={15} className="text-muted-foreground" />
                 </button>
               </PopoverTrigger>
-              <PopoverContent align="end" sideOffset={8} className="w-64 p-4 z-[100]">
-                <div className="flex items-center gap-3 mb-4">
-                  <Avatar className="h-10 w-10">
-                    <AvatarFallback className="bg-primary/10 text-primary text-sm font-semibold">
+              <PopoverContent align="end" sideOffset={8} className="w-56 p-3 rounded-2xl shadow-xl">
+                <div className="flex items-center gap-3 mb-3 pb-3 border-b border-border">
+                  <Avatar className="h-8 w-8">
+                    <AvatarFallback className="text-xs font-semibold">
                       {user?.email?.charAt(0).toUpperCase() || "U"}
                     </AvatarFallback>
                   </Avatar>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-foreground truncate">{user?.email}</p>
-                    <p className="text-xs text-muted-foreground">Signed in</p>
-                  </div>
+                  <p className="text-[13px] font-medium text-foreground truncate">{user?.email}</p>
                 </div>
-                <div className="border-t border-border pt-3 space-y-1">
-                  <Button
-                    variant="ghost"
-                    className="w-full justify-start gap-2 text-muted-foreground hover:text-foreground"
+                <div className="space-y-0.5">
+                  <button
                     onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                    className="w-full flex items-center gap-2.5 text-[13px] font-medium text-foreground bg-secondary hover:bg-accent rounded-lg px-3 py-2.5 transition-colors border border-border"
+                    style={{ cursor: "none" }}
                   >
-                    {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
+                    {theme === "dark" ? <Sun size={14} className="text-foreground" /> : <Moon size={14} className="text-foreground" />}
                     {theme === "dark" ? "Light mode" : "Dark mode"}
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    className="w-full justify-start gap-2 text-muted-foreground hover:text-foreground"
-                    onClick={handleSignOut}
+                  </button>
+                  <button
+                    onClick={async () => { await signOut(); navigate("/"); }}
+                    className="w-full flex items-center gap-2.5 text-[13px] text-muted-foreground hover:text-foreground hover:bg-accent rounded-lg px-3 py-2 transition-colors"
+                    style={{ cursor: "none" }}
                   >
-                    <LogOut size={16} />
-                    Sign out
-                  </Button>
+                    <LogOut size={14} /> Sign out
+                  </button>
                 </div>
               </PopoverContent>
             </Popover>
@@ -147,86 +172,111 @@ const Dashboard = () => {
         </div>
       </header>
 
-      {/* Location & Crypto Filter */}
-      <div className="sticky top-[100px] md:top-[110px] z-40 bg-background/95 backdrop-blur-xl">
-        <div className="flex items-center justify-center gap-3 px-10 md:px-14 lg:px-20 xl:px-24 py-3">
-          {activeCategory !== "Travel" && ["Miami", "Los Angeles", "New York", "Europe"].map((city) => (
-            <button
-              key={city}
-              onClick={() => setSelectedCity(selectedCity === city ? null : city)}
-              className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
-                selectedCity === city
-                  ? "bg-foreground text-background"
-                  : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
-              }`}
-            >
-              {city}
-            </button>
-          ))}
-          {activeCategory === "Travel" && (
-            <span className="text-sm text-muted-foreground italic px-2">Charter to anywhere in the world</span>
-          )}
-          <Select value={selectedCrypto} onValueChange={setSelectedCrypto}>
-            <SelectTrigger className="w-[160px] h-8 rounded-full text-sm">
-              <SelectValue placeholder="All Crypto" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Crypto</SelectItem>
-              <SelectItem value="ETH">ETH</SelectItem>
-              <SelectItem value="BTC">BTC</SelectItem>
-              <SelectItem value="SOL">SOL</SelectItem>
-            </SelectContent>
-          </Select>
+      {/* ── Filter bar ── */}
+      <div className="sticky top-[72px] z-40 bg-background/95 backdrop-blur-xl border-b border-border">
+        <div className="px-6 md:px-10 lg:px-16 py-3 flex flex-wrap items-center gap-3">
+          {/* City pills */}
+          <div className="flex items-center gap-2 flex-wrap">
+            {CITIES.map((city) => (
+              <button
+                key={city}
+                onClick={() => setActiveCity(city)}
+                className={`px-4 py-1.5 rounded-full text-[13px] font-medium transition-all ${
+                  activeCity === city
+                    ? "bg-foreground text-background"
+                    : "bg-secondary text-secondary-foreground hover:bg-secondary/70"
+                }`}
+                style={{ cursor: "none" }}
+              >
+                {city === "All" ? "All Cities" : city.split(",")[0]}
+              </button>
+            ))}
+          </div>
+
+          <div className="w-px h-5 bg-border hidden md:block mx-1" />
+
+          {/* Crypto pills */}
+          <div className="flex items-center gap-2 flex-wrap">
+            {CRYPTOS.map((c) => (
+              <button
+                key={c}
+                onClick={() => setActiveCrypto(c)}
+                className={`px-3 py-1.5 rounded-full text-[12px] font-medium transition-all border ${
+                  activeCrypto === c
+                    ? "bg-foreground text-background border-foreground"
+                    : "border-border text-muted-foreground hover:border-foreground/40"
+                }`}
+                style={{ cursor: "none" }}
+              >
+                {c === "All" ? "All Crypto" : c}
+              </button>
+            ))}
+          </div>
+
+          {/* Search */}
+          <div className="ml-auto relative hidden md:block">
+            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+            <input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search..."
+              className="pl-8 pr-4 py-1.5 rounded-full border border-border bg-background text-[13px] text-foreground placeholder:text-muted-foreground outline-none focus:border-foreground/40 transition-colors w-44"
+              style={{ cursor: "none" }}
+            />
+          </div>
         </div>
       </div>
 
-      {/* Listings */}
-      <main className="container py-8">
-        {(() => {
-          const categoryMap: Record<string, string[]> = {
-            "Stays": ["Stay"],
-            "Services": ["Rental"],
-            "Travel": ["PrivateJet"],
-          };
-          const filtered = allListings.filter((listing) => {
-            if (!(categoryMap[activeCategory] || []).includes(listing.type)) return false;
-            if (activeCategory !== "Travel") {
-              if (!selectedCity) return false;
-              if (!listing.location.toLowerCase().includes(selectedCity.toLowerCase())) return false;
-            }
-            if (selectedCrypto !== "all") {
-              return (listing.acceptedCrypto || []).includes(selectedCrypto);
-            }
-            return true;
-          });
+      {/* ── Main ── */}
+      <main className="px-6 md:px-10 lg:px-16 py-10">
+        <div className="flex items-baseline gap-4 mb-8">
+          <h2 className="text-[22px] font-bold text-foreground">
+            {CATEGORIES.find((c) => c.type === activeType)?.label}
+          </h2>
+          {!isLoading && (
+            <span className="text-[13px] text-muted-foreground font-medium">{filtered.length} places</span>
+          )}
+        </div>
 
-          if (filtered.length === 0) {
-            return <p className="text-muted-foreground text-center py-12">No listings found for this category and location.</p>;
-          }
-
-          const mid = Math.ceil(filtered.length / 2);
-          const rows = [filtered.slice(0, mid), filtered.slice(mid)].filter((r) => r.length > 0);
-
-          return (
-            <div className="space-y-6">
-              {rows.map((row, idx) => (
-                <HorizontalScrollRow key={idx}>
-                  {row.map((listing) => (
-                    <ListingCard
-                      key={listing.id}
-                      listing={listing}
-                      isFavorite={favorites.includes(listing.id)}
-                      onToggleFavorite={toggleFavorite}
-                    />
-                  ))}
-                </HorizontalScrollRow>
+        {isLoading ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-10">
+            {[...Array(8)].map((_, i) => (
+              <div key={i} className="animate-pulse">
+                <div className="rounded-xl bg-muted mb-4" style={{ aspectRatio: "4/3" }} />
+                <div className="h-4 bg-muted rounded mb-2 w-3/4" />
+                <div className="h-3 bg-muted/50 rounded w-1/2" />
+              </div>
+            ))}
+          </div>
+        ) : filtered.length === 0 ? (
+          <div className="py-24 text-center">
+            <p className="text-2xl font-semibold text-muted-foreground mb-2">No listings found</p>
+            <p className="text-[14px] text-muted-foreground">Try a different city or filter.</p>
+          </div>
+        ) : (
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeType + activeCity + activeCrypto + search}
+              className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-10"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.25 }}
+            >
+              {filtered.map((listing, i) => (
+                <motion.div
+                  key={listing.id}
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.35, delay: i * 0.05 }}
+                >
+                  <ListingCard listing={listing} isFav={favorites.includes(listing.id)} onFav={toggleFav} />
+                </motion.div>
               ))}
-            </div>
-          );
-        })()}
+            </motion.div>
+          </AnimatePresence>
+        )}
       </main>
     </div>
   );
-};
-
-export default Dashboard;
+}

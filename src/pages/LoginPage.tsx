@@ -2,8 +2,9 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
-import { Eye, EyeOff, ArrowRight } from "lucide-react";
-import { motion } from "framer-motion";
+import { Eye, EyeOff } from "lucide-react";
+import FluidGradient from "@/components/ui/fluid-gradient";
+import Logo from "@/components/Logo";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -27,58 +28,47 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen w-full grid lg:grid-cols-2" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-      {/* Left — form */}
-      <div className="flex flex-col bg-[#080808] px-10 md:px-16 lg:px-20 py-10">
-        {/* Nav */}
-        <div className="flex items-center justify-between mb-16">
-          <button
-            onClick={() => navigate("/")}
-            className="text-white text-[24px] font-light tracking-[0.06em]"
-            style={{ fontFamily: "'Cormorant Garamond', serif" }}
-          >
-            Spendr
-          </button>
-          <button
-            onClick={() => navigate("/signup")}
-            className="text-[13px] text-white/50 hover:text-white transition-colors tracking-wide font-light"
-          >
-            No account? <span className="text-white border-b border-white/40 pb-px ml-1">Sign up</span>
-          </button>
+    <div
+      className="min-h-screen w-full flex"
+      style={{ background: "#0e0e0e", fontFamily: "'Inter', 'DM Sans', sans-serif" }}
+    >
+      {/* ── Left — form ── */}
+      <div className="flex-1 flex flex-col px-12 md:px-16 py-8 min-w-0">
+        {/* Logo */}
+        <div className="mb-auto">
+          <Logo color="white" size={20} onClick={() => navigate("/")} />
         </div>
 
-        {/* Form */}
-        <motion.div
-          className="flex-1 flex flex-col justify-center max-w-sm"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, ease: [0.25, 0.1, 0.25, 1] }}
-        >
-          <p className="text-[11px] tracking-[0.28em] uppercase text-white/40 mb-5 font-light">Welcome back</p>
-          <h1
-            className="text-white text-[48px] md:text-[60px] leading-[0.95] font-light tracking-tight mb-10"
-            style={{ fontFamily: "'Cormorant Garamond', serif" }}
-          >
-            Sign in.
+        {/* Form content — vertically centered */}
+        <div className="flex-1 flex flex-col justify-center max-w-[340px]">
+          <h1 className="text-white font-bold mb-8" style={{ fontSize: "clamp(40px, 5vw, 56px)", letterSpacing: "-0.02em", lineHeight: 1.1 }}>
+            Sign in
           </h1>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label className="block text-[11px] tracking-[0.2em] uppercase text-white/40 mb-3 font-light">
-                Email
+              <label className="block text-white text-[14px] font-semibold mb-2">
+                Email address
               </label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full h-12 bg-transparent border-b border-white/20 text-white text-[15px] font-light outline-none focus:border-white/60 transition-colors placeholder:text-white/20"
-                placeholder="you@example.com"
+                placeholder="Enter your email"
+                className="w-full rounded-xl px-4 py-3 text-white text-[14px] outline-none transition-colors placeholder:text-white/25"
+                style={{
+                  background: "rgba(255,255,255,0.05)",
+                  border: "1px solid rgba(255,255,255,0.12)",
+                  cursor: "none",
+                }}
+                onFocus={(e) => e.target.style.borderColor = "rgba(255,255,255,0.3)"}
+                onBlur={(e) => e.target.style.borderColor = "rgba(255,255,255,0.12)"}
               />
             </div>
 
             <div>
-              <label className="block text-[11px] tracking-[0.2em] uppercase text-white/40 mb-3 font-light">
+              <label className="block text-white text-[14px] font-semibold mb-2">
                 Password
               </label>
               <div className="relative">
@@ -87,55 +77,81 @@ export default function LoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className="w-full h-12 bg-transparent border-b border-white/20 text-white text-[15px] font-light outline-none focus:border-white/60 transition-colors placeholder:text-white/20 pr-10"
-                  placeholder="••••••••••"
+                  placeholder="Enter your password"
+                  className="w-full rounded-xl px-4 py-3 text-white text-[14px] outline-none transition-colors placeholder:text-white/25 pr-10"
+                  style={{
+                    background: "rgba(255,255,255,0.05)",
+                    border: "1px solid rgba(255,255,255,0.12)",
+                    cursor: "none",
+                  }}
+                  onFocus={(e) => e.target.style.borderColor = "rgba(255,255,255,0.3)"}
+                  onBlur={(e) => e.target.style.borderColor = "rgba(255,255,255,0.12)"}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-0 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60 transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60 transition-colors"
+                  style={{ cursor: "none" }}
                 >
                   {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
                 </button>
               </div>
+            </div>
+
+            {/* Button row */}
+            <div className="flex items-center gap-5 pt-1">
+              <button
+                type="submit"
+                disabled={loading}
+                className="rounded-full px-6 py-2.5 text-[14px] font-semibold transition-all disabled:opacity-50"
+                style={{
+                  background: "rgba(255,255,255,0.9)",
+                  color: "#0e0e0e",
+                  cursor: "none",
+                }}
+              >
+                {loading ? "Signing in…" : "Sign in"}
+              </button>
               <button
                 type="button"
-                className="mt-3 text-[12px] text-white/30 hover:text-white/60 transition-colors tracking-wide font-light"
+                className="text-[14px] font-medium transition-colors"
+                style={{ color: "rgba(255,255,255,0.45)", cursor: "none" }}
+                onMouseEnter={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.75)")}
+                onMouseLeave={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.45)")}
               >
                 Forgot password?
               </button>
             </div>
-
-            <div className="pt-4">
-              <button
-                type="submit"
-                disabled={loading}
-                className="flex items-center gap-2 bg-white text-black text-[13px] font-medium px-8 py-3 hover:bg-white/90 transition-colors tracking-wide disabled:opacity-50"
-              >
-                {loading ? "Signing in…" : "Sign in"} {!loading && <ArrowRight size={13} />}
-              </button>
-            </div>
           </form>
-        </motion.div>
+
+          <p className="mt-7 text-[14px]" style={{ color: "rgba(255,255,255,0.35)" }}>
+            Don't have an account?{" "}
+            <button
+              onClick={() => navigate("/signup")}
+              className="font-medium transition-colors"
+              style={{ color: "rgba(255,255,255,0.65)", cursor: "none" }}
+              onMouseEnter={(e) => (e.currentTarget.style.color = "white")}
+              onMouseLeave={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.65)")}
+            >
+              Sign up
+            </button>
+          </p>
+        </div>
+
+        <div className="mt-auto" />
       </div>
 
-      {/* Right — image */}
-      <div className="hidden lg:block relative overflow-hidden">
-        <img
-          src="https://images.unsplash.com/photo-1582268611958-ebfd161ef9cf?w=1200&h=1600&fit=crop&q=90"
-          alt="Spendr"
-          className="w-full h-full object-cover"
-        />
-        <div className="absolute inset-0" style={{
-          background: "linear-gradient(to right, rgba(8,8,8,0.3) 0%, rgba(0,0,0,0) 50%)"
-        }} />
-        <div className="absolute bottom-12 left-12 right-12">
-          <p
-            className="text-white text-[28px] font-light leading-tight"
-            style={{ fontFamily: "'Cormorant Garamond', serif", textShadow: "0 2px 20px rgba(0,0,0,0.6)" }}
-          >
-            "The world's first platform built for spending crypto on the extraordinary."
-          </p>
+      {/* ── Right — animated fluid gradient ── */}
+      <div className="hidden lg:flex flex-1 items-center justify-center p-8 min-w-0">
+        <div
+          className="w-full overflow-hidden"
+          style={{
+            borderRadius: "24px",
+            height: "calc(100vh - 64px)",
+            maxHeight: "900px",
+          }}
+        >
+          <FluidGradient />
         </div>
       </div>
     </div>

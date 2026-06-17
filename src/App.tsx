@@ -5,6 +5,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import { ThemeProvider } from "next-themes";
+import { useLenis } from "@/hooks/useLenis";
+import Cursor from "./components/Cursor";
 import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/LoginPage";
 import SignUpPage from "./pages/SignUpPage";
@@ -21,6 +23,11 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
+function SmoothScroll({ children }: { children: React.ReactNode }) {
+  useLenis();
+  return <>{children}</>;
+}
+
 const App = () => (
   <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
     <QueryClientProvider client={queryClient}>
@@ -29,6 +36,8 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <AuthProvider>
+            <SmoothScroll>
+            <Cursor />
             <Routes>
               <Route path="/" element={<HomePage />} />
               <Route path="/login" element={<LoginPage />} />
@@ -37,6 +46,7 @@ const App = () => (
               <Route path="/listing/:id" element={<ProtectedRoute><ListingDetail /></ProtectedRoute>} />
               <Route path="*" element={<NotFound />} />
             </Routes>
+            </SmoothScroll>
           </AuthProvider>
         </BrowserRouter>
       </TooltipProvider>
