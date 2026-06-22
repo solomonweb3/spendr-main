@@ -160,7 +160,7 @@ function Hero() {
             className="text-[13px] font-light leading-relaxed max-w-xs"
             style={{ fontFamily: SANS, color: "rgba(255,255,255,0.45)" }}
           >
-            Luxury stays, private jets, exotic cars &<br />bespoke experiences — paid with your crypto.
+            Luxury stays, private jets, yacht charters &<br />the world's finest — paid with your crypto.
           </p>
           <motion.div
             className="flex flex-col items-center gap-2"

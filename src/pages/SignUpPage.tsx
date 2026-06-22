@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { Eye, EyeOff } from "lucide-react";
-import FluidGradient from "@/components/ui/fluid-gradient";
 import Logo from "@/components/Logo";
 
 export default function SignUpPage() {
@@ -42,18 +41,16 @@ export default function SignUpPage() {
 
   return (
     <div
-      className="min-h-screen w-full flex"
+      className="min-h-screen w-full flex flex-col items-center justify-center px-6"
       style={{ background: "#0e0e0e", fontFamily: "'Inter', 'DM Sans', sans-serif" }}
     >
-      {/* ── Left — form ── */}
-      <div className="flex-1 flex flex-col px-12 md:px-16 py-8 min-w-0">
-        {/* Logo */}
-        <div className="mb-auto">
-          <Logo color="white" size={20} onClick={() => navigate("/")} />
-        </div>
+      {/* Logo */}
+      <div className="absolute top-8 left-8">
+        <Logo color="white" size={20} onClick={() => navigate("/")} />
+      </div>
 
         {/* Form content */}
-        <div className="flex-1 flex flex-col justify-center max-w-[340px]">
+        <div className="flex flex-col w-full max-w-[380px]">
           <h1 className="text-white font-bold mb-8" style={{ fontSize: "clamp(36px, 4.5vw, 52px)", letterSpacing: "-0.02em", lineHeight: 1.1 }}>
             Create account
           </h1>
@@ -159,19 +156,6 @@ export default function SignUpPage() {
             </button>
           </p>
         </div>
-
-        <div className="mt-auto" />
-      </div>
-
-      {/* ── Right — animated fluid gradient ── */}
-      <div className="hidden lg:flex flex-1 items-center justify-center p-8 min-w-0">
-        <div
-          className="w-full overflow-hidden"
-          style={{ borderRadius: "24px", height: "calc(100vh - 64px)", maxHeight: "900px" }}
-        >
-          <FluidGradient />
-        </div>
-      </div>
     </div>
   );
 }
