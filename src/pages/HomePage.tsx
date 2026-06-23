@@ -4,7 +4,6 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import Logo from "@/components/Logo";
 import heroImg from "@/assets/hero.jpg";
 import aviationImg from "@/assets/cars.webp";
-import carsImg from "@/assets/aviation.webp";
 import experiencesImg from "@/assets/experiences.jpg";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -249,15 +248,8 @@ const categories = [
   },
   {
     num: "03",
-    label: "Exotic Cars",
-    sub: "Ferraris, Lamborghinis, Bentleys — available by the day. Miami, LA, Dubai, and beyond.",
-    image: carsImg,
-    focal: "center",
-  },
-  {
-    num: "04",
-    label: "Experiences",
-    sub: "Michelin-starred dining, superyacht charters, exclusive events, bespoke concierge.",
+    label: "Charters",
+    sub: "Private superyacht charters across the Mediterranean, Caribbean, and beyond — by the week or day.",
     image: experiencesImg,
     focal: "center",
   },

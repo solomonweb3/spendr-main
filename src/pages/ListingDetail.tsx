@@ -16,6 +16,47 @@ const TYPE_LABELS: Record<string, string> = {
   Experience:  "Experience",
 };
 
+const OPERATOR_URLS: Record<string, string> = {
+  "VistaJet":            "https://www.vistajet.com/en/private-jets/",
+  "Wheels Up":           "https://wheelsup.com/fly",
+  "PrivateFly":          "https://www.privatefly.com/us/private-jet-charter",
+  "5 Star Jets":         "https://www.5starjets.com/request-a-quote/",
+  "GlobeAir":            "https://www.globeair.com/book-a-flight",
+  "Talon Air":           "https://www.talonair.com/charter/",
+  "AirX Charter":        "https://airxcharter.com/request-a-quote/",
+  "Magellan Jets":       "https://www.magellanjets.com/charter-a-jet/",
+  "SimpleCharters":      "https://simplecharters.com/book/",
+  "Stratos Jets":        "https://www.stratosjets.com/request-a-quote/",
+  "Paramount":           "https://www.paramountbusinessjets.com/request-a-charter-quote/",
+  "Bitjet":              "https://bitjet.aero/book/",
+  "Air Charter Service": "https://www.aircharterservice.com/charter-enquiry",
+};
+
+function getBookingUrl(listing: { name: string; type: string }): string {
+  const name = listing.name;
+
+  // Yacht Zoo — link to specific yacht page
+  if (name.includes("Yacht Zoo")) {
+    const yachtName = name.replace(" — Yacht Zoo", "").trim().toLowerCase().replace(/\s+/g, "-").replace(/'/g, "");
+    return `https://www.yacht-zoo.com/yacht/${yachtName}/`;
+  }
+
+  // "Aircraft — Operator" format
+  if (name.includes(" — ")) {
+    const operator = name.split(" — ")[1].trim();
+    for (const [key, url] of Object.entries(OPERATOR_URLS)) {
+      if (operator.toLowerCase().includes(key.toLowerCase())) return url;
+    }
+  }
+
+  // "Operator Aircraft" format (operator name first)
+  for (const [key, url] of Object.entries(OPERATOR_URLS)) {
+    if (name.startsWith(key)) return url;
+  }
+
+  return `https://www.google.com/search?q=${encodeURIComponent(name + " charter inquiry")}`;
+}
+
 export default function ListingDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -212,7 +253,7 @@ export default function ListingDetail() {
             <button
               className="w-full py-4 bg-white text-black text-[12px] tracking-[0.2em] uppercase font-medium hover:bg-white/90 transition-colors"
               style={{ fontFamily: SANS, cursor: "none" }}
-              onClick={() => window.open(`https://www.google.com/search?q=${encodeURIComponent(listing.name)}`, "_blank")}
+              onClick={() => window.open(getBookingUrl(listing), "_blank")}
             >
               Book / Enquire →
             </button>
