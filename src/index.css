@@ -10,8 +10,7 @@ html.lenis, html.lenis body { height: auto; }
 .lenis.lenis-smooth { scroll-behavior: auto !important; }
 .lenis.lenis-stopped { overflow: hidden; }
 
-/* Hide default cursor */
-* { cursor: none !important; }
+/* Custom cursor (decorative only — never hide the OS cursor for accessibility) */
 
 /* Selection */
 ::selection { background: rgba(240,237,230,0.15); }
@@ -79,7 +78,7 @@ html.lenis, html.lenis body { height: auto; }
     --secondary-foreground: 0 0% 90%;
 
     --muted: 230 10% 16%;
-    --muted-foreground: 230 10% 55%;
+    --muted-foreground: 230 10% 63%;
 
     --accent: 0 0% 85%;
     --accent-foreground: 230 15% 8%;
@@ -159,4 +158,13 @@ html.lenis, html.lenis body { height: auto; }
 }
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
+}
+
+/* Respect user's motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

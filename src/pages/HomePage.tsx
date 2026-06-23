@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, useScroll, useTransform } from "framer-motion";
 import Logo from "@/components/Logo";
+import SiteFooter from "@/components/SiteFooter";
 import heroImg from "@/assets/hero.jpg";
 import aviationImg from "@/assets/cars.webp";
 import carsImg from "@/assets/aviation.webp";
@@ -63,6 +64,7 @@ function ScrollProgress() {
   const scaleX = useTransform(scrollYProgress, [0, 1], [0, 1]);
   return (
     <motion.div
+      aria-hidden="true"
       className="fixed top-0 left-0 right-0 h-px bg-white/30 z-[100] origin-left"
       style={{ scaleX }}
     />
@@ -84,22 +86,24 @@ function Nav({ navigate }: { navigate: (p: string) => void }) {
       style={{ background: scrolled ? "rgba(5,5,5,0.9)" : "transparent", backdropFilter: scrolled ? "blur(12px)" : "none" }}
     >
       <Logo color="white" size={20} onClick={() => navigate("/")} />
-      <div className="flex items-center gap-6">
-        <button
-          onClick={() => navigate("/login")}
-          className="text-[12px] tracking-[0.15em] uppercase text-white/50 hover:text-white transition-colors font-light"
-          style={{ fontFamily: SANS }}
-        >
-          Sign in
-        </button>
-        <button
-          onClick={() => navigate("/signup")}
-          className="text-[12px] tracking-[0.15em] uppercase text-white border border-white/30 px-5 py-2.5 hover:bg-white hover:text-black transition-all duration-300 font-light"
-          style={{ fontFamily: SANS }}
-        >
-          Join
-        </button>
-      </div>
+      <nav aria-label="Primary">
+        <div className="flex items-center gap-6">
+          <button
+            onClick={() => navigate("/login")}
+            className="text-[12px] tracking-[0.15em] uppercase text-white/70 hover:text-white transition-colors font-light"
+            style={{ fontFamily: SANS }}
+          >
+            Sign in
+          </button>
+          <button
+            onClick={() => navigate("/signup")}
+            className="text-[12px] tracking-[0.15em] uppercase text-white border border-white/30 px-5 py-2.5 hover:bg-white hover:text-black transition-all duration-300 font-light"
+            style={{ fontFamily: SANS }}
+          >
+            Join
+          </button>
+        </div>
+      </nav>
     </header>
   );
 }
@@ -124,7 +128,7 @@ function Hero() {
         {/* Eyebrow */}
         <motion.p
           className="text-[10px] tracking-[0.4em] uppercase mb-8 font-light"
-          style={{ fontFamily: SANS, color: "rgba(255,255,255,0.4)" }}
+          style={{ fontFamily: SANS, color: "rgba(255,255,255,0.60)" }}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3, duration: 1 }}
@@ -133,8 +137,8 @@ function Hero() {
         </motion.p>
 
         {/* Main headline — word by word */}
-        <div className="overflow-hidden">
-          <div className="flex flex-wrap gap-x-[0.25em]" style={{ fontFamily: SERIF, fontSize: "clamp(64px, 10vw, 148px)", lineHeight: 0.92, fontWeight: 300, color: OFF_WHITE }}>
+        <h1 className="overflow-hidden">
+          <span className="flex flex-wrap gap-x-[0.25em]" style={{ fontFamily: SERIF, fontSize: "clamp(64px, 10vw, 148px)", lineHeight: 0.92, fontWeight: 300, color: OFF_WHITE }}>
             {words.map((word, i) => (
               <motion.span
                 key={word}
@@ -146,8 +150,8 @@ function Hero() {
                 {word}
               </motion.span>
             ))}
-          </div>
-        </div>
+          </span>
+        </h1>
 
         {/* Bottom row */}
         <motion.div
@@ -158,7 +162,7 @@ function Hero() {
         >
           <p
             className="text-[13px] font-light leading-relaxed max-w-xs"
-            style={{ fontFamily: SANS, color: "rgba(255,255,255,0.45)" }}
+            style={{ fontFamily: SANS, color: "rgba(255,255,255,0.65)" }}
           >
             Luxury stays, private jets, yacht charters &<br />the world's finest — paid with your crypto.
           </p>
@@ -168,7 +172,7 @@ function Hero() {
             transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
           >
             <div className="w-px h-12 bg-white/20" />
-            <span className="text-[9px] tracking-[0.3em] uppercase text-white/30" style={{ fontFamily: SANS }}>Scroll</span>
+            <span className="text-[9px] tracking-[0.3em] uppercase text-white/50" style={{ fontFamily: SANS }}>Scroll</span>
           </motion.div>
         </motion.div>
       </motion.div>
@@ -206,7 +210,7 @@ function StatItem({ target, suffix, label, delay, started }: { target: number; s
       <p className="font-light leading-none mb-2" style={{ fontFamily: SERIF, fontSize: "clamp(36px, 4vw, 56px)", color: OFF_WHITE }}>
         {started ? count : 0}{suffix}
       </p>
-      <p className="text-[11px] tracking-[0.2em] uppercase font-light text-white/30" style={{ fontFamily: SANS }}>{label}</p>
+      <p className="text-[11px] tracking-[0.2em] uppercase font-light text-white/50" style={{ fontFamily: SANS }}>{label}</p>
     </motion.div>
   );
 }
@@ -299,7 +303,7 @@ function CategorySection({ cat, index }: { cat: typeof categories[0]; index: num
           <div>
             <motion.p
               className="text-[10px] tracking-[0.35em] uppercase font-light mb-8"
-              style={{ fontFamily: SANS, color: "rgba(255,255,255,0.25)" }}
+              style={{ fontFamily: SANS, color: "rgba(255,255,255,0.50)" }}
               initial={{ opacity: 0 }} animate={visible ? { opacity: 1 } : {}}
               transition={{ duration: 0.6, delay: 0.3 }}
             >
@@ -327,7 +331,7 @@ function CategorySection({ cat, index }: { cat: typeof categories[0]; index: num
 
             <motion.p
               className="text-[14px] font-light leading-relaxed max-w-xs"
-              style={{ fontFamily: SANS, color: "rgba(255,255,255,0.4)" }}
+              style={{ fontFamily: SANS, color: "rgba(255,255,255,0.60)" }}
               initial={{ opacity: 0, y: 8 }} animate={visible ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.7, delay: 0.45 }}
             >
@@ -344,7 +348,7 @@ function CategorySection({ cat, index }: { cat: typeof categories[0]; index: num
 function MarqueeBand() {
   const items = ["BTC", "ETH", "SOL", "USDC", "USDT", "BNB", "XRP", "MATIC", "BTC", "ETH", "SOL", "USDC", "USDT", "BNB", "XRP", "MATIC"];
   return (
-    <div className="border-t border-b border-white/[0.06] py-5 overflow-hidden">
+    <div aria-hidden="true" className="border-t border-b border-white/[0.06] py-5 overflow-hidden">
       <motion.div
         className="flex gap-12 whitespace-nowrap"
         animate={{ x: ["0%", "-50%"] }}
@@ -365,7 +369,7 @@ function CTASection({ navigate }: { navigate: (p: string) => void }) {
   const { ref, inView } = useInView(0.2);
   return (
     <section ref={ref as React.Ref<HTMLElement>} className="px-8 md:px-14 py-32 md:py-48 flex flex-col items-start">
-      <LineReveal delay={0.1} className="text-[10px] tracking-[0.35em] uppercase font-light mb-10" style={{ fontFamily: SANS, color: "rgba(255,255,255,0.3)" }}>
+      <LineReveal delay={0.1} className="text-[10px] tracking-[0.35em] uppercase font-light mb-10" style={{ fontFamily: SANS, color: "rgba(255,255,255,0.50)" }}>
         Ready to begin
       </LineReveal>
 
@@ -391,6 +395,7 @@ function CTASection({ navigate }: { navigate: (p: string) => void }) {
       >
         Create account
         <motion.span
+          aria-hidden="true"
           className="inline-block"
           animate={{ x: [0, 4, 0] }}
           transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
@@ -399,23 +404,6 @@ function CTASection({ navigate }: { navigate: (p: string) => void }) {
         </motion.span>
       </motion.button>
     </section>
-  );
-}
-
-// ─── Footer ───────────────────────────────────────────────────────────────────
-function Footer({ navigate }: { navigate: (p: string) => void }) {
-  return (
-    <footer className="border-t border-white/[0.07] px-8 md:px-14 py-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-      <Logo color="white" size={16} onClick={() => navigate("/")} />
-      <p className="text-[11px] tracking-[0.15em] font-light text-white/20" style={{ fontFamily: SANS }}>
-        © {new Date().getFullYear()} — All rights reserved
-      </p>
-      <div className="flex gap-8 text-[11px] tracking-[0.15em] uppercase font-light text-white/25" style={{ fontFamily: SANS }}>
-        {["Privacy", "Terms", "Contact"].map((l) => (
-          <a key={l} href="#" className="hover:text-white/60 transition-colors">{l}</a>
-        ))}
-      </div>
-    </footer>
   );
 }
 
@@ -434,7 +422,7 @@ export default function HomePage() {
       ))}
       <MarqueeBand />
       <CTASection navigate={navigate} />
-      <Footer navigate={navigate} />
+      <SiteFooter />
     </div>
   );
 }

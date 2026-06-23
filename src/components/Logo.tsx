@@ -16,10 +16,11 @@ export default function Logo({ color = "white", size = 22, onClick }: LogoProps)
     <button
       onClick={onClick}
       className="flex items-center gap-2.5 select-none"
-      style={{ cursor: "none", background: "none", border: "none", padding: 0 }}
+      style={{ background: "none", border: "none", padding: 0 }}
     >
       {/* Triangle mark */}
       <svg
+        aria-hidden="true"
         width={size}
         height={size * 0.88}
         viewBox="0 0 100 88"
