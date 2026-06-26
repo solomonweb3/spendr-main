@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { LogOut, User, Sun, Moon, Star, Heart, Search, MapPin, X, DollarSign } from "lucide-react";
 import { useTheme } from "next-themes";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -8,6 +8,7 @@ import { useAuth } from "@/hooks/useAuth";
 import Logo from "@/components/Logo";
 import { useListings } from "@/hooks/useListings";
 import { motion, AnimatePresence } from "framer-motion";
+import SiteFooter from "@/components/SiteFooter";
 
 const CATEGORIES = [
   { label: "Stays",            type: "Stay"       },
@@ -35,33 +36,35 @@ const CITY_REGIONS: Record<string, string[]> = {
 
 // ─── Card ─────────────────────────────────────────────────────────────────────
 function ListingCard({ listing, isFav, onFav }: { listing: any; isFav: boolean; onFav: (id: number) => void }) {
-  const navigate = useNavigate();
   return (
-    <div className="group flex flex-col" onClick={() => navigate(`/listing/${listing.id}`)} style={{ cursor: "none" }}>
+    <div className="group flex flex-col">
       {/* Image */}
       <div className="relative overflow-hidden rounded-xl mb-4 bg-muted" style={{ aspectRatio: "4/3" }}>
-        <img
-          src={listing.image}
-          alt={listing.name}
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-          loading="lazy"
-        />
+        <Link to={`/listing/${listing.id}`} className="block w-full h-full">
+          <img
+            src={listing.image}
+            alt={`${listing.name} — ${listing.location}`}
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+            loading="lazy"
+          />
+        </Link>
 
         <button
           onClick={(e) => { e.stopPropagation(); onFav(listing.id); }}
+          aria-label={isFav ? `Remove ${listing.name} from favorites` : `Save ${listing.name} to favorites`}
+          aria-pressed={isFav}
           className="absolute top-3 right-3 p-2 rounded-full bg-background/80 backdrop-blur-sm hover:bg-background transition-colors shadow-sm"
-          style={{ cursor: "none" }}
         >
-          <Heart size={14} className={isFav ? "fill-red-500 text-red-500" : "text-muted-foreground"} />
+          <Heart size={14} aria-hidden="true" className={isFav ? "fill-red-500 text-red-500" : "text-muted-foreground"} />
         </button>
       </div>
 
       {/* Info */}
-      <div className="flex flex-col gap-1 px-0.5">
+      <Link to={`/listing/${listing.id}`} className="flex flex-col gap-1 px-0.5">
         <div className="flex items-start justify-between gap-2">
           <h3 className="font-semibold text-foreground text-[15px] leading-snug truncate">{listing.name}</h3>
           <div className="flex items-center gap-0.5 flex-shrink-0 mt-0.5">
-            <Star size={12} className="fill-foreground text-foreground" />
+            <Star size={12} aria-hidden="true" className="fill-foreground text-foreground" />
             <span className="text-[13px] font-medium text-foreground">{listing.rating}</span>
           </div>
         </div>
@@ -79,7 +82,7 @@ function ListingCard({ listing, isFav, onFav }: { listing: any; isFav: boolean; 
             </span>
           )}
         </div>
-      </div>
+      </Link>
     </div>
   );
 }
@@ -138,21 +141,23 @@ export default function Dashboard() {
           <div className="flex-none">
             <Logo size={18} color={theme === "dark" ? "white" : "black"} onClick={() => navigate("/")} />
           </div>
-          <nav className="flex-1 hidden md:flex items-center justify-center h-full gap-1">
+          <nav aria-label="Listing categories" className="flex-1 hidden md:flex items-center justify-center h-full gap-1" role="tablist">
             {CATEGORIES.map((cat) => {
               const isActive = activeType === cat.type;
               return (
                 <button
                   key={cat.type}
+                  role="tab"
+                  aria-selected={isActive}
                   onClick={() => { setActiveType(cat.type); setActiveCity("All"); }}
                   className={`relative flex items-center justify-center px-5 h-[56px] text-[13px] font-medium transition-colors ${isActive ? "text-foreground" : "text-muted-foreground hover:text-foreground"}`}
-                  style={{ cursor: "none" }}
                 >
                   {cat.label}
                   {isActive && (
                     <motion.div
                       layoutId="tab-line"
                       className="absolute bottom-0 left-3 right-3 h-[2px] bg-foreground rounded-full"
+                      aria-hidden="true"
                     />
                   )}
                 </button>
@@ -168,23 +173,25 @@ export default function Dashboard() {
           <div className="relative" ref={whereRef}>
             <button
               onClick={() => { setWhereOpen((o) => !o); setCitySearch(""); }}
+              aria-expanded={whereOpen}
+              aria-haspopup="listbox"
               className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-[13px] font-medium border transition-all ${
                 activeCity !== "All"
                   ? "bg-foreground text-background border-foreground"
                   : "border-border text-foreground hover:border-foreground/40 bg-background"
               }`}
-              style={{ cursor: "none" }}
             >
-              <MapPin size={13} />
+              <MapPin size={13} aria-hidden="true" />
               {activeCity === "All" ? "Where" : activeCity.split(",")[0]}
               {activeCity !== "All" && (
-                <span
+                <button
+                  type="button"
                   onClick={(e) => { e.stopPropagation(); setActiveCity("All"); }}
+                  aria-label="Clear location filter"
                   className="ml-0.5 opacity-60 hover:opacity-100"
-                  style={{ cursor: "none" }}
                 >
-                  <X size={11} />
-                </span>
+                  <X size={11} aria-hidden="true" />
+                </button>
               )}
             </button>
 
@@ -196,18 +203,20 @@ export default function Dashboard() {
                   exit={{ opacity: 0, y: 6, scale: 0.97 }}
                   transition={{ duration: 0.15 }}
                   className="absolute top-full left-0 mt-2 w-64 bg-background border border-border rounded-2xl shadow-xl z-50 overflow-hidden"
+                  role="listbox"
+                  aria-label="Select destination"
                 >
                   {/* Search input */}
                   <div className="p-3 border-b border-border">
                     <div className="relative">
-                      <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                      <Search size={13} aria-hidden="true" className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
                       <input
                         autoFocus
                         value={citySearch}
                         onChange={(e) => setCitySearch(e.target.value)}
                         placeholder="Search destination..."
-                        className="w-full pl-8 pr-3 py-2 rounded-xl bg-secondary text-[13px] text-foreground placeholder:text-muted-foreground outline-none"
-                        style={{ cursor: "none" }}
+                        aria-label="Search destinations"
+                        className="w-full pl-8 pr-3 py-2 rounded-xl bg-secondary text-[13px] text-foreground placeholder:text-muted-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring"
                       />
                     </div>
                   </div>
@@ -218,13 +227,14 @@ export default function Dashboard() {
                       .map((city) => (
                         <button
                           key={city}
+                          role="option"
+                          aria-selected={activeCity === city}
                           onClick={() => { setActiveCity(city); setWhereOpen(false); }}
                           className={`w-full flex items-center gap-2.5 px-4 py-2.5 text-[13px] transition-colors hover:bg-secondary text-left ${
                             activeCity === city ? "font-semibold text-foreground" : "text-muted-foreground"
                           }`}
-                          style={{ cursor: "none" }}
                         >
-                          <MapPin size={12} className={activeCity === city ? "text-foreground" : "text-muted-foreground/50"} />
+                          <MapPin size={12} aria-hidden="true" className={activeCity === city ? "text-foreground" : "text-muted-foreground/50"} />
                           {city === "All" ? "Anywhere" : city}
                         </button>
                       ))
@@ -235,38 +245,41 @@ export default function Dashboard() {
             </AnimatePresence>
           </div>
 
-          <div className="w-px h-5 bg-border hidden md:block mx-1" />
+          <div className="w-px h-5 bg-border hidden md:block mx-1" aria-hidden="true" />
 
           {/* Crypto dropdown */}
           <div className="relative" ref={cryptoRef}>
             <button
               onClick={() => setCryptoOpen((o) => !o)}
+              aria-expanded={cryptoOpen}
+              aria-haspopup="listbox"
               className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-[13px] font-medium border transition-all ${
                 activeCrypto !== "All"
                   ? "bg-foreground text-background border-foreground"
                   : "border-border text-foreground hover:border-foreground/40 bg-background"
               }`}
-              style={{ cursor: "none" }}
             >
               {activeCrypto !== "All" ? (
                 <span
+                  aria-hidden="true"
                   className="text-[13px] font-bold leading-none"
                   style={{ color: activeCrypto !== "All" ? "inherit" : CRYPTO_SYMBOLS[activeCrypto]?.color }}
                 >
                   {CRYPTO_SYMBOLS[activeCrypto]?.symbol}
                 </span>
               ) : (
-                <DollarSign size={13} />
+                <DollarSign size={13} aria-hidden="true" />
               )}
               {activeCrypto === "All" ? "Currency" : activeCrypto}
               {activeCrypto !== "All" && (
-                <span
+                <button
+                  type="button"
                   onClick={(e) => { e.stopPropagation(); setActiveCrypto("All"); }}
+                  aria-label="Clear currency filter"
                   className="ml-0.5 opacity-60 hover:opacity-100"
-                  style={{ cursor: "none" }}
                 >
-                  <X size={11} />
-                </span>
+                  <X size={11} aria-hidden="true" />
+                </button>
               )}
             </button>
 
@@ -278,21 +291,25 @@ export default function Dashboard() {
                   exit={{ opacity: 0, y: 6, scale: 0.97 }}
                   transition={{ duration: 0.15 }}
                   className="absolute top-full left-0 mt-2 w-44 bg-background border border-border rounded-2xl shadow-xl z-50 overflow-hidden"
+                  role="listbox"
+                  aria-label="Select cryptocurrency"
                 >
                   <div className="py-1.5">
                     {CRYPTOS.map((c) => (
                       <button
                         key={c}
+                        role="option"
+                        aria-selected={activeCrypto === c}
                         onClick={() => { setActiveCrypto(c); setCryptoOpen(false); }}
                         className={`w-full flex items-center gap-2.5 px-4 py-2.5 text-[13px] transition-colors hover:bg-secondary text-left ${
                           activeCrypto === c ? "font-semibold text-foreground" : "text-muted-foreground"
                         }`}
-                        style={{ cursor: "none" }}
                       >
                         {c === "All" ? (
-                          <DollarSign size={12} className="text-muted-foreground/50" />
+                          <DollarSign size={12} aria-hidden="true" className="text-muted-foreground/50" />
                         ) : (
                           <span
+                            aria-hidden="true"
                             className="text-[13px] font-bold leading-none w-3 text-center flex-shrink-0"
                             style={{ color: CRYPTO_SYMBOLS[c]?.color }}
                           >
@@ -312,14 +329,16 @@ export default function Dashboard() {
           <div className="ml-auto flex items-center gap-3">
             <button
               className="hidden md:flex items-center gap-2 border border-border rounded-full px-4 py-2 text-[13px] font-medium text-foreground hover:shadow-md transition-all"
-              style={{ cursor: "none" }}
             >
               List a Business
             </button>
             <Popover>
               <PopoverTrigger asChild>
-                <button className="w-9 h-9 rounded-full border border-border flex items-center justify-center hover:shadow-md transition-all" style={{ cursor: "none" }}>
-                  <User size={15} className="text-muted-foreground" />
+                <button
+                  aria-label="Account menu"
+                  className="w-9 h-9 rounded-full border border-border flex items-center justify-center hover:shadow-md transition-all"
+                >
+                  <User size={15} aria-hidden="true" className="text-muted-foreground" />
                 </button>
               </PopoverTrigger>
               <PopoverContent align="end" sideOffset={8} className="w-56 p-3 rounded-2xl shadow-xl">
@@ -335,17 +354,15 @@ export default function Dashboard() {
                   <button
                     onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
                     className="w-full flex items-center gap-2.5 text-[13px] font-medium text-foreground bg-secondary hover:bg-accent rounded-lg px-3 py-2.5 transition-colors border border-border"
-                    style={{ cursor: "none" }}
                   >
-                    {theme === "dark" ? <Sun size={14} className="text-foreground" /> : <Moon size={14} className="text-foreground" />}
+                    {theme === "dark" ? <Sun size={14} aria-hidden="true" className="text-foreground" /> : <Moon size={14} aria-hidden="true" className="text-foreground" />}
                     {theme === "dark" ? "Light mode" : "Dark mode"}
                   </button>
                   <button
                     onClick={async () => { await signOut(); navigate("/"); }}
                     className="w-full flex items-center gap-2.5 text-[13px] text-muted-foreground hover:text-foreground hover:bg-accent rounded-lg px-3 py-2 transition-colors"
-                    style={{ cursor: "none" }}
                   >
-                    <LogOut size={14} /> Sign out
+                    <LogOut size={14} aria-hidden="true" /> Sign out
                   </button>
                 </div>
               </PopoverContent>
@@ -357,15 +374,22 @@ export default function Dashboard() {
 
       {/* ── Main ── */}
 
-      <main className="px-6 md:px-10 lg:px-16 py-10">
-        <div className="flex items-baseline gap-4 mb-8">
-          <h2 className="text-[22px] font-bold text-foreground">
+      <main className="px-6 md:px-10 lg:px-16 py-10" role="tabpanel">
+        <div className="flex items-baseline gap-4 mb-3">
+          <h1 className="text-[22px] font-bold text-foreground">
             {CATEGORIES.find((c) => c.type === activeType)?.label}
-          </h2>
+          </h1>
         </div>
 
+        <p className="text-[12px] text-muted-foreground mb-8">
+          Spendr may earn a commission when you book through our links — this never affects the price you pay.{" "}
+          <a href="/terms#affiliate" className="underline underline-offset-2 hover:text-foreground transition-colors">
+            Learn more
+          </a>
+        </p>
+
         {isLoading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-10">
+          <div role="status" aria-label="Loading listings" className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-10">
             {[...Array(8)].map((_, i) => (
               <div key={i} className="animate-pulse">
                 <div className="rounded-xl bg-muted mb-4" style={{ aspectRatio: "4/3" }} />
@@ -403,6 +427,7 @@ export default function Dashboard() {
           </AnimatePresence>
         )}
       </main>
+      <SiteFooter variant="themed" />
     </div>
   );
 }

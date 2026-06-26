@@ -4,6 +4,7 @@ import { ArrowLeft, Star, MapPin, Globe, Phone, Heart } from "lucide-react";
 import { useListing } from "@/hooks/useListings";
 import { useState } from "react";
 import { motion } from "framer-motion";
+import SiteFooter from "@/components/SiteFooter";
 
 const SERIF = "'Cormorant Garamond', serif";
 const SANS  = "'DM Sans', sans-serif";
@@ -66,7 +67,7 @@ export default function ListingDetail() {
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ background: "#050505" }}>
-        <div className="w-8 h-8 border border-white/20 rounded-full animate-spin border-t-white/60" />
+        <div role="status" aria-label="Loading listing details" className="w-8 h-8 border border-white/20 rounded-full animate-spin border-t-white/60" />
       </div>
     );
   }
@@ -93,18 +94,20 @@ export default function ListingDetail() {
         style={{ background: "rgba(5,5,5,0.9)", backdropFilter: "blur(12px)" }}>
         <button
           onClick={() => navigate("/dashboard")}
-          className="flex items-center gap-3 text-white/40 hover:text-white transition-colors text-[12px] tracking-[0.15em] uppercase"
-          style={{ fontFamily: SANS, cursor: "none" }}
+          className="flex items-center gap-3 text-white/60 hover:text-white transition-colors text-[12px] tracking-[0.15em] uppercase"
+          style={{ fontFamily: SANS }}
         >
-          <ArrowLeft size={14} /> Back
+          <ArrowLeft size={14} aria-hidden="true" /> Back
         </button>
         <Logo color="white" size={18} onClick={() => navigate("/")} />
         <button
           onClick={() => setIsFav(!isFav)}
-          className="flex items-center gap-2 text-[12px] tracking-[0.15em] uppercase text-white/40 hover:text-white transition-colors"
-          style={{ fontFamily: SANS, cursor: "none" }}
+          aria-label={isFav ? "Remove from favorites" : "Save to favorites"}
+          aria-pressed={isFav}
+          className="flex items-center gap-2 text-[12px] tracking-[0.15em] uppercase text-white/60 hover:text-white transition-colors"
+          style={{ fontFamily: SANS }}
         >
-          <Heart size={14} className={isFav ? "fill-white text-white" : ""} /> Save
+          <Heart size={14} aria-hidden="true" className={isFav ? "fill-white text-white" : ""} /> Save
         </button>
       </header>
 
@@ -112,7 +115,7 @@ export default function ListingDetail() {
       <div className="relative w-full overflow-hidden" style={{ height: "70vh", marginTop: 0 }}>
         <motion.img
           src={listing.image}
-          alt={listing.name}
+          alt={`${listing.name} — ${typeLabel} in ${listing.location}`}
           className="w-full h-full object-cover"
           initial={{ scale: 1.04 }}
           animate={{ scale: 1 }}
@@ -167,7 +170,7 @@ export default function ListingDetail() {
 
           {/* Description */}
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
-            <p className="text-[10px] tracking-[0.3em] uppercase text-white/25 mb-5" style={{ fontFamily: SANS }}>About</p>
+            <p className="text-[10px] tracking-[0.3em] uppercase text-white/50 mb-5" style={{ fontFamily: SANS }}>About</p>
             <p className="font-light leading-[1.8] text-white/60 text-[15px]" style={{ fontFamily: SANS }}>
               {listing.description || `${listing.name} is a premier ${typeLabel.toLowerCase()} service accepting cryptocurrency payments.`}
             </p>
@@ -177,7 +180,7 @@ export default function ListingDetail() {
 
           {/* Accepted crypto */}
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}>
-            <p className="text-[10px] tracking-[0.3em] uppercase text-white/25 mb-5" style={{ fontFamily: SANS }}>Accepted currencies</p>
+            <p className="text-[10px] tracking-[0.3em] uppercase text-white/50 mb-5" style={{ fontFamily: SANS }}>Accepted currencies</p>
             <div className="flex flex-wrap gap-3">
               {crypto.map((c) => (
                 <div
@@ -194,7 +197,7 @@ export default function ListingDetail() {
 
           {/* Details grid */}
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7 }}>
-            <p className="text-[10px] tracking-[0.3em] uppercase text-white/25 mb-5" style={{ fontFamily: SANS }}>Details</p>
+            <p className="text-[10px] tracking-[0.3em] uppercase text-white/50 mb-5" style={{ fontFamily: SANS }}>Details</p>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
               {[
                 { label: "Category", value: typeLabel },
@@ -205,7 +208,7 @@ export default function ListingDetail() {
                 { label: "Cryptos", value: `${crypto.length} accepted` },
               ].map((d) => (
                 <div key={d.label}>
-                  <p className="text-[10px] tracking-[0.2em] uppercase text-white/25 mb-1.5" style={{ fontFamily: SANS }}>{d.label}</p>
+                  <p className="text-[10px] tracking-[0.2em] uppercase text-white/50 mb-1.5" style={{ fontFamily: SANS }}>{d.label}</p>
                   <p className="font-light text-white/70 text-[14px]" style={{ fontFamily: SANS }}>{d.value}</p>
                 </div>
               ))}
@@ -221,7 +224,7 @@ export default function ListingDetail() {
           <div className="sticky top-24 border border-white/[0.08] p-8 space-y-8">
             {/* Price */}
             <div>
-              <p className="text-[10px] tracking-[0.3em] uppercase text-white/25 mb-3" style={{ fontFamily: SANS }}>Price range</p>
+              <p className="text-[10px] tracking-[0.3em] uppercase text-white/50 mb-3" style={{ fontFamily: SANS }}>Price range</p>
               <p className="font-light" style={{ fontFamily: SERIF, fontSize: "48px", color: OFF_WHITE, lineHeight: 1 }}>{listing.price}</p>
             </div>
 
@@ -234,14 +237,14 @@ export default function ListingDetail() {
                 <span className="text-white/70 text-[15px] font-light" style={{ fontFamily: SANS }}>{listing.rating}</span>
               </div>
               <span className="text-white/20">·</span>
-              <span className="text-white/35 text-[13px]" style={{ fontFamily: SANS }}>{listing.reviews} reviews</span>
+              <span className="text-white/60 text-[13px]" style={{ fontFamily: SANS }}>{listing.reviews} reviews</span>
             </div>
 
             <div className="w-full h-px bg-white/[0.07]" />
 
             {/* Crypto */}
             <div>
-              <p className="text-[10px] tracking-[0.3em] uppercase text-white/25 mb-4" style={{ fontFamily: SANS }}>Pay with</p>
+              <p className="text-[10px] tracking-[0.3em] uppercase text-white/50 mb-4" style={{ fontFamily: SANS }}>Pay with</p>
               <div className="flex flex-wrap gap-2">
                 {crypto.map((c) => (
                   <span key={c} className="text-[11px] tracking-[0.15em] uppercase border border-white/[0.1] text-white/50 px-3 py-1.5" style={{ fontFamily: SANS }}>{c}</span>
@@ -252,19 +255,27 @@ export default function ListingDetail() {
             {/* CTA */}
             <button
               className="w-full py-4 bg-white text-black text-[12px] tracking-[0.2em] uppercase font-medium hover:bg-white/90 transition-colors"
-              style={{ fontFamily: SANS, cursor: "none" }}
+              style={{ fontFamily: SANS }}
               onClick={() => window.open(getBookingUrl(listing), "_blank")}
             >
               Book / Enquire →
             </button>
 
-            <p className="text-center text-[11px] text-white/20 font-light" style={{ fontFamily: SANS }}>
+            <p className="text-center text-[11px] text-white/50 font-light" style={{ fontFamily: SANS }}>
               You'll be directed to the provider's website
+            </p>
+            <p className="text-center text-[10px] text-white/50 font-light mt-1.5" style={{ fontFamily: SANS }}>
+              This may be an affiliate link.{" "}
+              <a href="/terms#affiliate" className="underline underline-offset-2 hover:text-white/70 transition-colors">
+                Spendr may earn a commission
+              </a>{" "}
+              — the price you pay is unaffected.
             </p>
           </div>
         </motion.div>
 
       </div>
+      <SiteFooter />
     </div>
   );
 }

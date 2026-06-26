@@ -34,6 +34,8 @@ export default function Cursor() {
   return (
     <div
       ref={ring}
+      aria-hidden="true"
+      role="presentation"
       className="fixed top-0 left-0 w-[36px] h-[36px] rounded-full z-[9999] pointer-events-none"
       style={{
         // mix-blend-mode: difference inverts the color against any background
