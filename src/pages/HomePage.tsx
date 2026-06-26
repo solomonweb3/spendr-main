@@ -241,14 +241,14 @@ const categories = [
   },
   {
     num: "02",
-    label: "Private Aviation",
+    label: "Jet Charters",
     sub: "Charter a private jet or turboprop to any destination on the globe. Your schedule.",
     image: aviationImg,
     focal: "center",
   },
   {
     num: "03",
-    label: "Charters",
+    label: "Yacht Charters",
     sub: "Private superyacht charters across the Mediterranean, Caribbean, and beyond — by the week or day.",
     image: experiencesImg,
     focal: "center",
